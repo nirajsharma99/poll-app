@@ -6,8 +6,54 @@ import {
   faWhatsapp,
 } from '@fortawesome/free-brands-svg-icons';
 import { faTrashAlt, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import queryString from 'query-string';
 
-function PollAdmin() {
+function PollAdmin({ location }) {
+  const [question, setQuestion] = useState('');
+  const [options, setOptions] = useState([{ id: '', options: '', count: 0 }]);
+  const [key, setKey] = useState('');
+  let totalvotes = 0;
+  options.map((x) => {
+    totalvotes += x.count;
+  });
+  //console.log('total votes', totalvotes);
+  useEffect(() => {
+    var x = queryString.parse(location.search);
+    const id = x.id;
+    setKey(x.key);
+    //console.log(id);
+    axios
+      .get(`http://localhost:5000/getpoll/${id}`)
+      .then(function (response) {
+        let medium = [];
+        const data = response.data;
+        console.log(data);
+        setQuestion(data.question);
+        data.options.map((option) => {
+          medium.push(option);
+          return medium;
+        });
+        setOptions(medium);
+        //console.log('options', options);
+        //console.log('medium', medium);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }, []);
+  const deletePoll = () => {
+    const data = { key: key };
+    axios
+      .post('http://localhost:5000/deletepoll', data)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   return (
     <div>
       <div className="ui-container py-5">
@@ -19,134 +65,60 @@ function PollAdmin() {
             </p>
           </div>
           <div class="d-flex align-items-center mr-4 mr-md-4 justify-content-around justify-content-md-center">
-            <button
-              aria-label="Edit Poll?"
-              data-balloon-pos="up"
-              class="text-primary-dark p-2 outline-none rounded hover-shadow text-warning border-0 bg-transparent"
-            >
-              <FontAwesomeIcon icon={faPencilAlt} />
-            </button>
+            {totalvotes === 0 ? (
+              <button
+                aria-label="Edit Poll?"
+                data-balloon-pos="up"
+                class="text-primary-dark p-2 outline-none rounded hover-shadow text-warning border-0 bg-transparent"
+              >
+                <FontAwesomeIcon icon={faPencilAlt} />
+              </button>
+            ) : null}
+
             <button
               aria-label="Delete Poll?"
               data-balloon-pos="up"
               class="text-primary-dark p-2 outline-none rounded hover-shadow text-danger border-0 bg-transparent"
+              onClick={deletePoll}
             >
               <FontAwesomeIcon icon={faTrashAlt} />
             </button>
           </div>
         </div>
         <div className="mb-5 mb-md-5 pb-md-0 my-4">
-          <h2 className=" mb-5 heading">
-            How much would you pay for an ebook on productivity?
-          </h2>
+          <h2 className=" mb-5 heading">{question}</h2>
           <div className="d-flex flex-md-row flex-column ">
             <div className="d-flex w-100 col-12 col-md-8 flex-column">
               <div style={{ position: 'relative' }}>
                 <div>
-                  <div className="py-0 bg-white px-3  rounded-lg shadow-lg position-relative">
-                    <div className="d-flex justify-content-between">
-                      <div className="d-flex align-items-center">
-                        <h2 className=" font-weight-bold text-primary-dark">
-                          $2
-                        </h2>
+                  {options.map((x) => (
+                    <div className="py-0 bg-white px-3  rounded-lg shadow-lg position-relative">
+                      <div className="d-flex justify-content-between">
+                        <div className="d-flex align-items-center">
+                          <h2 className=" font-weight-bold text-primary-dark">
+                            {x.options}
+                          </h2>
+                        </div>
+                        <div className=" ">
+                          <h2 className=" font-weight-bold text-primary-dark">
+                            {(x.count / totalvotes) * 100}%
+                          </h2>
+                        </div>
                       </div>
-                      <div className=" ">
-                        <h2 className=" font-weight-bold text-primary-dark">
-                          32%
-                        </h2>
+                      <div className="w-100 rounded-lg ">
+                        <div
+                          className="rounded-lg d-block bg-success mt-3"
+                          style={{
+                            width: `${(x.count / totalvotes) * 100}%`,
+                            height: '0.5rem',
+                          }}
+                        >
+                          &nbsp;
+                        </div>
                       </div>
+                      <p className="mt-3 text-green">{x.count} Votes</p>
                     </div>
-                    <div className="w-100 rounded-lg ">
-                      <div
-                        className="rounded-lg d-block bg-success mt-3"
-                        style={{ width: '32%', height: '0.5rem' }}
-                      >
-                        &nbsp;
-                      </div>
-                    </div>
-                    <p className="mt-3 text-green">67 Votes</p>
-                  </div>
-                </div>
-                <div>
-                  <div className="py-0 bg-white px-3  rounded-lg shadow-lg position-relative">
-                    <div className="d-flex justify-content-between">
-                      <div className="d-flex align-items-center">
-                        <h2 className=" font-weight-bold text-primary-dark">
-                          $5
-                        </h2>
-                      </div>
-                      <div className="">
-                        <h2 className=" font-weight-bold text-primary-dark">
-                          29%
-                        </h2>
-                      </div>
-                    </div>
-                    <div className="h-2 w-100 bg-gray-300 rounded-lg ">
-                      <div
-                        className="rounded-lg d-block bg-success mt-3"
-                        style={{ width: '29%', height: '0.5rem' }}
-                      >
-                        &nbsp;
-                      </div>
-                    </div>
-                    <p className="mt-3 text-green-600 text-xs lg:text-base">
-                      60 Votes
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div className="py-0 bg-white px-3  rounded-lg shadow-lg position-relative">
-                  <div className="d-flex justify-content-between">
-                    <div className="d-flex align-items-center">
-                      <h2 className=" font-weight-bold text-primary-dark">
-                        $10
-                      </h2>
-                    </div>
-                    <div className="">
-                      <h2 className=" font-weight-bold text-primary-dark">
-                        22%
-                      </h2>
-                    </div>
-                  </div>
-                  <div className="h-2 w-100 bg-gray-300 rounded-lg ">
-                    <div
-                      className="rounded-lg d-block bg-success mt-3"
-                      style={{ width: '22%', height: '0.5rem' }}
-                    >
-                      &nbsp;
-                    </div>
-                  </div>
-                  <p className="mt-3 text-green-600 text-xs lg:text-base">
-                    45 Votes
-                  </p>
-                </div>
-                <div>
-                  <div className="py-0 bg-white px-3  rounded-lg shadow-lg position-relative">
-                    <div className="d-flex justify-content-between">
-                      <div className="d-flex align-items-center">
-                        <h2 className=" font-weight-bold text-primary-dark">
-                          $20
-                        </h2>
-                      </div>
-                      <div className="">
-                        <h2 className=" font-weight-bold text-primary-dark">
-                          17%
-                        </h2>
-                      </div>
-                    </div>
-                    <div className="h-2 w-100 bg-gray-300 rounded-lg ">
-                      <div
-                        className="rounded-lg d-block bg-success mt-3"
-                        style={{ width: '17%', height: '0.5rem' }}
-                      >
-                        &nbsp;
-                      </div>
-                    </div>
-                    <p className="mt-3 text-green-600 text-xs lg:text-base">
-                      35 Votes
-                    </p>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -170,7 +142,7 @@ function PollAdmin() {
                       Total Votes
                     </p>
                     <h3 className="count font-weight-bold text-primary-dark">
-                      207
+                      {totalvotes}
                     </h3>
                   </div>
                   <div className="d-flex flex-column">

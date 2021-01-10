@@ -38,5 +38,39 @@ app.post('/links', (req, res) => {
     .then((response) => res.send(response))
     .catch((error) => res.send(error));
 });
+app.post('/submitresponse', (req, res) => {
+  console.log('api working', req.body.id, req.body.count, req.body.pollid);
+  const pollid = req.body.pollid;
+  savePoll
+    .updateOne(
+      { pollid: pollid, 'options.id': req.body.id },
+      { $set: { 'options.$.count': req.body.count } }
+    )
+    .then(() => {
+      console.log('Count updated');
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+app.post('/deletepoll', (req, res) => {
+  //console.log(req.body.key);
+  savePoll
+    .findOneAndRemove({ _id: req.body.key })
+    .then(() => {
+      console.log('Poll deleted');
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+app.get('/getpoll/:id', (req, res) => {
+  const x = req.params.id;
+  console.log('response made' + x);
+  savePoll
+    .findOne({ pollid: x })
+    .then((response) => res.send(response))
+    .catch((error) => res.send(error));
+});
 
 app.listen(port, () => console.log(`listening on port ${port}`));
