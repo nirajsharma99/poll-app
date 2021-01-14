@@ -2,10 +2,22 @@ import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import '../App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faBolt, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+  Textbox,
+  Radiobox,
+  Checkbox,
+  Select,
+  Textarea,
+} from 'react-inputs-validation';
+import 'react-inputs-validation/lib/react-inputs-validation.min.css';
 import { Link, useHistory } from 'react-router-dom';
 import { useState } from 'react';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import Snackbar from '@material-ui/core/Snackbar';
+import Slide from '@material-ui/core/Slide';
+import MuiAlert from '@material-ui/lab/Alert';
+import IconButton from '@material-ui/core/IconButton';
 
 function MainContent() {
   const history = useHistory();
@@ -13,22 +25,40 @@ function MainContent() {
   const [inputFields, setInputFields] = useState([
     { id: uuidv4(), options: '' },
   ]);
+  const [toast, setToast] = useState({
+    snackbaropen: false,
+    snackbar2open: false,
+    snackbar3open: false,
+    Transition: Slide,
+  });
+  const snackbarclose = (event) => {
+    setToast({
+      snackbaropen: false,
+      snackbar2open: false,
+      snackbar3open: false,
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log('Inputfields', inputFields);
-    console.log('question', questions);
-    const data = { question: questions, options: inputFields };
-    axios
-      .post('http://localhost:5000/api', data)
-      .then(function (response) {
-        console.log(response.data._id);
-        history.push(`/new/?id=${questions.id}`);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    //console.log('Inputfields', inputFields);
+    //console.log('question', questions);
+    if (inputFields.length < 2) {
+      setToast({ snackbar3open: true });
+    } else {
+      const data = { question: questions, options: inputFields };
+      axios
+        .post('http://localhost:5000/api', data)
+        .then(function (response) {
+          console.log(response.data._id);
+          handleClick(slideTransition);
+          history.push(`/new/?id=${questions.id}`);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
   };
 
   const handleChangeInput = (id, event) => {
@@ -41,12 +71,12 @@ function MainContent() {
     setInputFields(newInputFields);
   };
   const handleQuestion = (id, event) => {
-    //console.log(event.target.value + 'value');
     setQuestion({ id: id, question: event.target.value });
   };
 
   const handleAddfields = () => {
     setInputFields([...inputFields, { id: uuidv4(), options: '' }]);
+    setToast({ snackbar2open: true });
   };
   const handleRemoveFields = (id) => {
     const values = [...inputFields];
@@ -55,6 +85,12 @@ function MainContent() {
       1
     );
     setInputFields(values);
+  };
+  const slideTransition = (props) => {
+    return <Slide {...props} direction="down" />;
+  };
+  const handleClick = (Transition) => () => {
+    setToast({ snackbaropen: true, Transition });
   };
 
   return (
@@ -88,6 +124,66 @@ function MainContent() {
                 onChange={(event) => handleQuestion(questions.id, event)}
               ></textarea>
             </div>
+            <Snackbar
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              open={toast.snackbaropen}
+              onClose={snackbarclose}
+              autoHideDuration={2000}
+              TransitionComponent={toast.Transition}
+              key={toast.Transition}
+              action={[
+                <IconButton
+                  arial-label="Close"
+                  color="inherit"
+                  onClick={snackbarclose}
+                >
+                  x
+                </IconButton>,
+              ]}
+            >
+              <MuiAlert onClose={snackbarclose} severity="success">
+                Success, poll submitted!
+              </MuiAlert>
+            </Snackbar>
+
+            <Snackbar
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              open={toast.snackbar2open}
+              onClose={snackbarclose}
+              autoHideDuration={2000}
+              action={[
+                <IconButton
+                  arial-label="Close"
+                  color="inherit"
+                  onClick={snackbarclose}
+                >
+                  x
+                </IconButton>,
+              ]}
+            >
+              <MuiAlert onClose={snackbarclose} severity="info">
+                Added another field!
+              </MuiAlert>
+            </Snackbar>
+            <Snackbar
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              open={toast.snackbar3open}
+              onClose={snackbarclose}
+              autoHideDuration={2000}
+              action={[
+                <IconButton
+                  arial-label="Close"
+                  color="inherit"
+                  onClick={snackbarclose}
+                >
+                  x
+                </IconButton>,
+              ]}
+            >
+              <MuiAlert onClose={snackbarclose} severity="error">
+                Poll must have more than one option!!
+              </MuiAlert>
+            </Snackbar>
 
             {inputFields.map((inputField, index) => (
               <div className="options mt-2 flex-column">
@@ -100,14 +196,20 @@ function MainContent() {
                       Option {index + 1}
                     </label>
                     <div className="flex align-items-center justify-content-between">
-                      <input
-                        name="options"
-                        id={inputField.id}
+                      <Textarea
+                        attributesInput={{
+                          // Optional.
+                          id: inputField.id,
+                          name: 'options',
+                          type: 'text',
+                          placeholder: 'Place your name here ^-^',
+                        }}
                         className=" py-3 rounded-lg px-3 textareastyle inputfield focus-shadow transition-all duration-200 text-gray-700 focus-outline-none  border border-gray-300 focus:shadow-outline"
                         placeholder={'Option' + (index + 1)}
                         value={inputField.options}
-                        onChange={(event) =>
-                          handleChangeInput(inputField.id, event)
+                        onChange={
+                          (event) => handleChangeInput(inputField.id, event)
+                          //console.log(event.target.name)
                         }
                       />
                       <button

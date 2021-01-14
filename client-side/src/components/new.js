@@ -5,9 +5,23 @@ import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import queryString from 'query-string';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-const New = ({ location }) => {
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import Snackbar from '@material-ui/core/Snackbar';
+import Slide from '@material-ui/core/Slide';
+import MuiAlert from '@material-ui/lab/Alert';
+import IconButton from '@material-ui/core/IconButton';
+
+function New({ location }) {
   const [pollId, setPollID] = useState('');
   const [key, setKey] = useState('');
+  const [copied, setCopied] = useState({ copied: false });
+  const [toast, setToast] = useState({
+    snackbaropen: false,
+    Transition: Slide,
+  });
+  const snackbarclose = (event) => {
+    setToast({ snackbaropen: false });
+  };
   useEffect(() => {
     //const x = queryString.parse(location.search);
     var x = queryString.parse(location.search);
@@ -18,7 +32,8 @@ const New = ({ location }) => {
       .post('http://localhost:5000/links', data)
       .then(function (response) {
         //console.log(response.data);
-        setPollID(response.data.pollid);
+        const i = response.data.pollid;
+        setPollID(i);
         setKey(response.data._id);
         //history.push(`/new/?id=${questions.id}`);
       })
@@ -26,6 +41,12 @@ const New = ({ location }) => {
         console.log(error);
       });
   });
+  const slideTransition = (props) => {
+    return <Slide {...props} direction="down" />;
+  };
+  const handleClick = (Transition) => () => {
+    setToast({ snackbaropen: true, Transition });
+  };
   return (
     <div className="ui-container py-5 ">
       <div className="bg-white w-75 d-flex flex-column border border-gray mx-auto  rounded-lg shadow-lg">
@@ -33,14 +54,42 @@ const New = ({ location }) => {
           <div className="d-flex flex-column">
             <h5 className="text-primary-dark">The link to your poll is</h5>
             <div className="d-flex w-100">
-              <input
-                type="text"
-                name="lin"
-                id="pollURL"
-                className="w-100 cursor-pointer outline-none py-2 my-3 border px-4 bg-gray-200 text-secondary rounded"
-                readOnly=""
-                value={'https://localhost:3000/poll/?id=' + pollId}
-              />
+              <Snackbar
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                open={toast.snackbaropen}
+                onClose={snackbarclose}
+                autoHideDuration={2000}
+                TransitionComponent={toast.Transition}
+                key={toast.Transition}
+                action={[
+                  <IconButton
+                    key="close"
+                    arial-label="Close"
+                    color="inherit"
+                    onClick={snackbarclose}
+                  >
+                    x
+                  </IconButton>,
+                ]}
+              >
+                <MuiAlert onClose={snackbarclose} severity="info">
+                  Copied to clipboard!
+                </MuiAlert>
+              </Snackbar>
+              <CopyToClipboard
+                text={'https://localhost:3000/poll/?id=' + pollId}
+                onCopy={() => setCopied({ copied: true })}
+              >
+                <input
+                  type="text"
+                  name="lin"
+                  id="pollURL"
+                  className="w-100 cursor-pointer outline-none py-2 my-3 border px-4 bg-gray-200 text-secondary rounded"
+                  readOnly=""
+                  value={'https://localhost:3000/poll/?id=' + pollId}
+                  onClick={handleClick(slideTransition)}
+                />
+              </CopyToClipboard>
             </div>
           </div>
           <div className="d-flex flex-column mt-5 py-4 border-top border-gray">
@@ -67,12 +116,23 @@ const New = ({ location }) => {
                     key
                   }
                 />
-                <div
-                  className="position-absolute inset-0 text-dark text-center d-flex align-items-center justify-content-center bg-gray-200 hover-bg-gray font-weight-bold w-100 "
-                  style={{ opacity: '0.9' }}
+                <CopyToClipboard
+                  text={
+                    'https://localhost:3000/poll-admin/id=?' +
+                    pollId +
+                    '&key=' +
+                    key
+                  }
+                  onCopy={() => setCopied({ copied: true })}
                 >
-                  Click to copy
-                </div>
+                  <div
+                    className="position-absolute inset-0 text-dark text-center d-flex align-items-center justify-content-center bg-gray-200 hover-bg-gray font-weight-bold w-100 "
+                    style={{ opacity: '0.9' }}
+                    onClick={handleClick(slideTransition)}
+                  >
+                    Click to copy
+                  </div>
+                </CopyToClipboard>
               </div>
             </div>
           </div>
@@ -100,5 +160,5 @@ const New = ({ location }) => {
       </div>
     </div>
   );
-};
+}
 export default New;
