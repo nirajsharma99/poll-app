@@ -10,6 +10,7 @@ import QRCode from 'qrcode.react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import queryString from 'query-string';
+import Notification from './notification';
 function PollResult({ location }) {
   const [pollid, setPollid] = useState('');
   const [question, setQuestion] = useState('');
@@ -19,11 +20,34 @@ function PollResult({ location }) {
   options.map((x) => {
     totalvotes += x.count;
   });
-
+  const [toast, setToast] = useState({
+    snackbaropen: false,
+    msg: '',
+    not: '',
+  });
+  const snackbarclose = (event) => {
+    setToast({
+      snackbaropen: false,
+    });
+  };
   console.log('total votes', totalvotes);
 
   var cache = JSON.parse(localStorage.getItem('verifier'));
   console.log(cache);
+  useEffect(() => {
+    if (cache != null && cache.id === pollid && cache.show === 0) {
+      setToast({
+        snackbaropen: true,
+        msg: 'Thankyou for voting!',
+        not: 'success',
+      });
+      localStorage.setItem(
+        'verifier',
+        JSON.stringify({ id: cache.id, selected: cache.selected, show: 1 })
+      );
+    }
+  });
+
   useEffect(() => {
     var x = queryString.parse(location.search);
     const id = x.id;
@@ -128,6 +152,12 @@ function PollResult({ location }) {
               </div>
             </div>
             <div className="d-flex flex-column w-100 col-12 col-md-4 mb-0 rounded-lg ">
+              <Notification
+                switcher={toast.snackbaropen}
+                close={snackbarclose}
+                message={toast.msg}
+                nottype={toast.not}
+              />
               {cache != null ? (
                 cache.id === pollid ? (
                   <ShowSelection />

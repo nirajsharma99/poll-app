@@ -8,7 +8,7 @@ function Notification(props) {
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       open={props.switcher}
       onClose={props.close}
-      autoHideDuration={2000}
+      autoHideDuration={3000}
       action={[
         <IconButton arial-label="Close" color="inherit" onClick={props.close}>
           x

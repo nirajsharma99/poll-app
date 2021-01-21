@@ -24,7 +24,7 @@ function Poll({ location }) {
     msg: '',
     not: '',
   });
-  const [verifier, setVerifier] = useState({ id: '', selected: '' });
+  const [verifier, setVerifier] = useState({ id: '', selected: '', show: 0 });
   //console.log(response);
   const snackbarclose = (event) => {
     setToast({
@@ -74,7 +74,7 @@ function Poll({ location }) {
       count: option.count + 1,
       pollid: pollid,
     });
-    setVerifier({ id: pollid, selected: option.options });
+    setVerifier({ id: pollid, selected: option.options, show: 0 });
 
     console.log('newresponse', response);
     //settingVerifier(response);
@@ -89,7 +89,7 @@ function Poll({ location }) {
         msg: 'Thankyou for your vote!, vote submitted!',
         not: 'success',
       });
-      localStorage.setItem('verifier', JSON.stringify(verifier));
+      localStorage.setItem('verifier', [JSON.stringify(verifier)]);
       console.log('submitting', response);
       //settingVerifier(response);
       console.log('submitting-verfier', verifier);
