@@ -30,6 +30,18 @@ app.post('/api', (req, res) => {
     .then((response) => res.send(response))
     .catch((error) => res.send(error));
 });
+app.post('/editpoll', (req, res) => {
+  const x = req.body.question.question;
+  const y = req.body.options;
+  const k = req.body.key;
+  console.log(x, y);
+
+  savePoll
+    .findOneAndUpdate({ _id: k }, { question: x, options: y })
+    .then((response) => res.send(response))
+    .catch((error) => res.send(error));
+});
+
 app.post('/links', (req, res) => {
   const x = req.body.id;
   //console.log(x);

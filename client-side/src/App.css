@@ -62,6 +62,9 @@
   padding-bottom: 5rem;
   border-top: 8px solid red;
 }
+.ui-outer {
+  background-color: #f5f5f5;
+}
 .ui-container {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -74,13 +77,11 @@
   color: gray;
   font-weight: 450;
 }
-textarea.textareastyle {
-  font-size: large;
-  opacity: 0.4;
+.textareastyle {
+  font-size: larger;
 }
-textarea.textareastyle :focus {
-  box-shadow: gray;
-  outline: none !important;
+.textareastyle :focus {
+  border: 3px solid skyblue;
 }
 
 /*------------------------demo-poll-----------------------------*/
@@ -121,4 +122,24 @@ textarea.textareastyle :focus {
 }
 .bg-gray-200:hover {
   background-color: rgba(173, 216, 230);
+}
+.radio-label:hover {
+  border: 2px solid skyblue;
+  transform: scale(1.1);
+  animation: overlay 1s;
+}
+.radio-label:focus-within {
+  border: 3px solid skyblue;
+  transform: scale(1.1);
+}
+@keyframes overlay {
+  from {
+    margin-left: 5%;
+    width: 100%;
+  }
+
+  to {
+    margin-left: 0%;
+    width: 100%;
+  }
 }

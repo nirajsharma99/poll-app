@@ -8,6 +8,7 @@ import New from './components/new';
 import Poll from './components/poll';
 import PollResult from './components/poll-result';
 import PollAdmin from './components/poll-admin';
+import EditPoll from './components/edit-poll';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/poll" component={Poll} />
           <Route path="/poll-result" component={PollResult} />
           <Route path="/poll-admin" component={PollAdmin} />
+          <Route path="/edit-poll" component={EditPoll} />
         </Switch>
       </div>
     </Router>

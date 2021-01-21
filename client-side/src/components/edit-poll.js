@@ -3,12 +3,11 @@ import '../App.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPlus,
-  faBolt,
+  faBookmark,
   faTrashAlt,
-  faSpider,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, useHistory } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -16,9 +15,12 @@ import Slide from '@material-ui/core/Slide';
 import MuiAlert from '@material-ui/lab/Alert';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
+import queryString from 'query-string';
 
-function MainContent() {
+function EditPoll({ location }) {
   const history = useHistory();
+  const [pollid, setPollid] = useState('');
+  const [key, setKey] = useState('');
   const [questions, setQuestion] = useState({
     id: uuidv4(),
     question: '',
@@ -33,6 +35,30 @@ function MainContent() {
     snackbar2open: false,
     Transition: Slide,
   });
+  useEffect(() => {
+    var x = queryString.parse(location.search);
+    const id = x.id;
+    setPollid(x.id);
+    setKey(x.key);
+    //console.log(id);
+
+    axios
+      .get(`http://localhost:5000/getpoll/${id}`)
+      .then(function (response) {
+        let medium = [];
+        const data = response.data;
+        console.log(data);
+        setQuestion({ question: data.question });
+        data.options.map((option) => {
+          medium.push(option);
+          return medium;
+        });
+        setInputFields(medium);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }, []);
   const snackbarclose = (event) => {
     setToast({
       snackbaropen: false,
@@ -65,13 +91,13 @@ function MainContent() {
         })
       );
     } else {
-      const data = { question: questions, options: inputFields };
+      const data = { question: questions, options: inputFields, key: key };
       axios
-        .post('http://localhost:5000/api', data)
+        .post('http://localhost:5000/editpoll', data)
         .then(function (response) {
           console.log(response.data._id);
           handleClick(slideTransition);
-          history.push(`/new/?id=${questions.id}`);
+          history.push(`/poll-admin/?id=${pollid}&key=${pollid}`);
         })
         .catch(function (error) {
           console.log(error);
@@ -115,31 +141,25 @@ function MainContent() {
   };
 
   return (
-    <div className="ui-outer ">
+    <div className="ui-outer">
       <div className="ui-container py-5 px-5">
         <form onSubmit={handleSubmit} autoComplete="off">
           <div className="mx-auto">
             <div className="d-flex justify-content-between flex-column flex-md-row align-items-baseline">
               <div>
-                <h3>Create Poll</h3>
+                <h3>Edit Poll</h3>
                 <p className="mt-4 mb-0 text-large text-secondary font-medium">
-                  Complete below fields to create a poll
+                  Edit below fields as you need.
                 </p>
               </div>
-              <Link
-                to="/poll/?id=54bf4315-04a5-4b9d-882d-19e147942ed8"
-                className="text-decoration-none"
-              >
-                <span
-                  className=" align-self-end font-weight-normal"
-                  style={{ fontSize: '1.3rem' }}
-                >
-                  View a Demo Poll
+              <Link to={'/poll-admin/?id=' + pollid + '&key=' + key}>
+                <span className="text-light bg-danger align-self-end font-weight-bold rounded-lg px-4 py-2">
+                  Cancel
                 </span>
               </Link>
             </div>
             <div className="mt-4">
-              <div className="flex flex-column question ">
+              <div className="flex flex-column question">
                 <label className="mb-3 w-100 font-weight-bold content-text">
                   Poll Question
                 </label>
@@ -154,9 +174,9 @@ function MainContent() {
                   name="question"
                   multiline={true}
                   rows={3}
-                  className=" w-100 py-4 rounded-lg px-3 outline-none  border border-gray "
+                  className="textareastyle w-100 py-4 rounded-lg px-3 outline-none  border border-gray "
                   placeholder="What's you favorite TV Show?"
-                  value={questions.question}
+                  defaultValue={questions.question}
                   onChange={(event) => handleQuestion(questions.id, event)}
                 />
               </div>
@@ -203,7 +223,7 @@ function MainContent() {
               </Snackbar>
 
               {inputFields.map((inputField, index) => (
-                <div className="options mt-2 flex-column " key={inputField.id}>
+                <div className="options mt-2 flex-column" key={inputField.id}>
                   <div className="flex align-items-center mb-3">
                     <div className="flex flex-column">
                       <label className="mb-3 w-100 content-text font-weight-bold">
@@ -222,7 +242,7 @@ function MainContent() {
                           })}
                           id={inputField.id}
                           name="options"
-                          className=" py-3 rounded-lg px-3  inputfield focus-shadow transition-all duration-200 text-gray-700 focus-outline-none  border border-gray-300"
+                          className=" py-3 rounded-lg px-3 textareastyle inputfield focus-shadow transition-all duration-200 text-gray-700 focus-outline-none  border border-gray-300 focus:shadow-outline"
                           placeholder={'Option' + (index + 1)}
                           value={inputField.options}
                           onChange={(event) =>
@@ -247,7 +267,7 @@ function MainContent() {
               <button
                 type="button"
                 onClick={handleAddfields}
-                className="px-5 py-3  bg-dark rounded-lg font-weight-bold flex align-items-center border-0 justify-content-between text-white "
+                className="px-5 py-3 border-0  bg-dark rounded-lg font-weight-bold flex align-items-center justify-content-between text-white"
               >
                 <span className="mr-3">
                   Add another option
@@ -259,24 +279,17 @@ function MainContent() {
               <button
                 type="submit"
                 /*onClick={handleSubmit}*/
-                className="px-5 py-3 bg-success text-white font-weight-bold border-0 rounded-lg"
+                className="px-5 py-3 bg-success border-0 text-white font-weight-bold rounded-lg"
               >
-                <FontAwesomeIcon className="mr-2" icon={faBolt} />
-                Create your poll
+                <FontAwesomeIcon className="mr-2" icon={faBookmark} />
+                Save changes
               </button>
             </div>
           </div>
         </form>
       </div>
-      <p
-        className="text-center font-weight-bold"
-        style={{ fontSize: '1.3rem', color: 'skyblue' }}
-      >
-        Built By{' '}
-        <FontAwesomeIcon className="display-4 text-dark" icon={faSpider} />
-      </p>
     </div>
   );
 }
 
-export default MainContent;
+export default EditPoll;
