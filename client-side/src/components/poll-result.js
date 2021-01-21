@@ -138,12 +138,6 @@ function PollResult({ location }) {
                 <ShowButton />
               )}
               <div className="w-100 bg-white d-flex flex-column border-t border-gray-300 border-top-0 rounded-lg self-start px-3 py-3 ">
-                <a
-                  className="bg-success py-3 px-2 mt-4 d-none font-weight-bold rounded-lg text-center text-white text-nowrap  "
-                  href={'/poll/?id=' + pollid}
-                >
-                  Submit your vote
-                </a>
                 <div className="d-flex flex-column justify-content-between">
                   <div className="">
                     <p className="font-weight-normal text-secondary text-left mb-0 text-sm lg:text-base">

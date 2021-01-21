@@ -6,10 +6,8 @@ import queryString from 'query-string';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import Snackbar from '@material-ui/core/Snackbar';
 import Slide from '@material-ui/core/Slide';
-import MuiAlert from '@material-ui/lab/Alert';
-import IconButton from '@material-ui/core/IconButton';
+import Notification from './notification';
 
 function New({ location }) {
   const [pollId, setPollID] = useState('');
@@ -17,6 +15,8 @@ function New({ location }) {
   const [copied, setCopied] = useState({ copied: false });
   const [toast, setToast] = useState({
     snackbaropen: false,
+    msg: '',
+    not: '',
     Transition: Slide,
   });
   const snackbarclose = (event) => {
@@ -45,7 +45,12 @@ function New({ location }) {
     return <Slide {...props} direction="down" />;
   };
   const handleClick = (Transition) => () => {
-    setToast({ snackbaropen: true, Transition });
+    setToast({
+      snackbaropen: true,
+      msg: 'Copied to Clipboard!',
+      not: 'info',
+      Transition,
+    });
   };
   return (
     <div className="ui-container py-5 ">
@@ -54,28 +59,13 @@ function New({ location }) {
           <div className="d-flex flex-column">
             <h5 className="text-primary-dark">The link to your poll is</h5>
             <div className="d-flex w-100">
-              <Snackbar
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                open={toast.snackbaropen}
-                onClose={snackbarclose}
-                autoHideDuration={2000}
-                TransitionComponent={toast.Transition}
-                key={toast.Transition}
-                action={[
-                  <IconButton
-                    key="close"
-                    arial-label="Close"
-                    color="inherit"
-                    onClick={snackbarclose}
-                  >
-                    x
-                  </IconButton>,
-                ]}
-              >
-                <MuiAlert onClose={snackbarclose} severity="info">
-                  Copied to clipboard!
-                </MuiAlert>
-              </Snackbar>
+              <Notification
+                switcher={toast.snackbaropen}
+                close={snackbarclose}
+                message={toast.msg}
+                nottype={toast.not}
+              />
+
               <CopyToClipboard
                 text={'https://localhost:3000/poll/?id=' + pollId}
                 onCopy={() => setCopied({ copied: true })}

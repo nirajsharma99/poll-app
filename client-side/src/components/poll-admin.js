@@ -210,12 +210,15 @@ function PollAdmin({ location }) {
               </div>
             </div>
             <div className="d-flex flex-column w-100 col-12 col-md-4 mb-0 rounded-lg ">
-              <a
-                className="bg-success text-decoration-none font-weight-bold mb-5 px-2 py-4 rounded-lg text-center text-white "
-                href={'/poll/?id=' + pollid}
-              >
-                Submit your vote
-              </a>
+              {cache != null ? (
+                cache.id === pollid ? (
+                  <ShowSelection />
+                ) : (
+                  <ShowButton />
+                )
+              ) : (
+                <ShowButton />
+              )}
               <div className="w-100 bg-white d-flex flex-column border-t border-gray-300 border-top-0 rounded-lg self-start px-3 py-3 ">
                 <div className="d-flex flex-column justify-content-between">
                   <div className="">

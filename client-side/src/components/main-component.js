@@ -11,11 +11,9 @@ import { Link, useHistory } from 'react-router-dom';
 import { useState } from 'react';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import Snackbar from '@material-ui/core/Snackbar';
 import Slide from '@material-ui/core/Slide';
-import MuiAlert from '@material-ui/lab/Alert';
-import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
+import Notification from './notification';
 
 function MainContent() {
   const history = useHistory();
@@ -30,13 +28,13 @@ function MainContent() {
   ]);
   const [toast, setToast] = useState({
     snackbaropen: false,
-    snackbar2open: false,
+    msg: '',
+    not: '',
     Transition: Slide,
   });
   const snackbarclose = (event) => {
     setToast({
       snackbaropen: false,
-      snackbar2open: false,
     });
   };
   const showError = (value, error) => value.trim().length === 0 && error;
@@ -97,7 +95,7 @@ function MainContent() {
       ...inputFields,
       { id: uuidv4(), options: '', error: false },
     ]);
-    setToast({ snackbar2open: true });
+    setToast({ snackbaropen: true, msg: 'Added another field!', not: 'info' });
   };
   const handleRemoveFields = (id) => {
     const values = [...inputFields];
@@ -111,7 +109,12 @@ function MainContent() {
     return <Slide {...props} direction="down" />;
   };
   const handleClick = (Transition) => () => {
-    setToast({ snackbaropen: true, Transition });
+    setToast({
+      snackbaropen: true,
+      msg: 'Success, poll submitted!',
+      not: 'success',
+      Transition,
+    });
   };
 
   return (
@@ -160,47 +163,12 @@ function MainContent() {
                   onChange={(event) => handleQuestion(questions.id, event)}
                 />
               </div>
-              <Snackbar
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                open={toast.snackbaropen}
-                onClose={snackbarclose}
-                autoHideDuration={2000}
-                TransitionComponent={toast.Transition}
-                key={toast.Transition}
-                action={[
-                  <IconButton
-                    arial-label="Close"
-                    color="inherit"
-                    onClick={snackbarclose}
-                  >
-                    x
-                  </IconButton>,
-                ]}
-              >
-                <MuiAlert onClose={snackbarclose} severity="success">
-                  Success, poll submitted!
-                </MuiAlert>
-              </Snackbar>
-
-              <Snackbar
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                open={toast.snackbar2open}
-                onClose={snackbarclose}
-                autoHideDuration={2000}
-                action={[
-                  <IconButton
-                    arial-label="Close"
-                    color="inherit"
-                    onClick={snackbarclose}
-                  >
-                    x
-                  </IconButton>,
-                ]}
-              >
-                <MuiAlert onClose={snackbarclose} severity="info">
-                  Added another field!
-                </MuiAlert>
-              </Snackbar>
+              <Notification
+                switcher={toast.snackbaropen}
+                close={snackbarclose}
+                message={toast.msg}
+                nottype={toast.not}
+              />
 
               {inputFields.map((inputField, index) => (
                 <div className="options mt-2 flex-column " key={inputField.id}>

@@ -6,10 +6,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import queryString from 'query-string';
 import { Link, useHistory } from 'react-router-dom';
-import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
-import IconButton from '@material-ui/core/IconButton';
 import PollResult from './poll-result';
+import Notification from './notification';
 
 function Poll({ location }) {
   const history = useHistory();
@@ -23,14 +21,14 @@ function Poll({ location }) {
   });
   const [toast, setToast] = useState({
     snackbaropen: false,
-    snackbar2open: false,
+    msg: '',
+    not: '',
   });
   const [verifier, setVerifier] = useState({ id: '', selected: '' });
   //console.log(response);
   const snackbarclose = (event) => {
     setToast({
       snackbaropen: false,
-      snackbar2open: false,
     });
   };
   useEffect(() => {
@@ -86,7 +84,11 @@ function Poll({ location }) {
     e.preventDefault();
     if (response.options.length > 0) {
       e.preventDefault();
-      setToast({ snackbar2open: true });
+      setToast({
+        snackbaropen: true,
+        msg: 'Thankyou for your vote!, vote submitted!',
+        not: 'success',
+      });
       localStorage.setItem('verifier', JSON.stringify(verifier));
       console.log('submitting', response);
       //settingVerifier(response);
@@ -100,7 +102,11 @@ function Poll({ location }) {
           console.log(error);
         });
     } else {
-      setToast({ snackbaropen: true });
+      setToast({
+        snackbaropen: true,
+        msg: 'Please, select a option!',
+        not: 'error',
+      });
     }
   };
 
@@ -134,54 +140,19 @@ function Poll({ location }) {
                   </div>
                 </div>
               ))}
-              <Snackbar
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                open={toast.snackbaropen}
-                onClose={snackbarclose}
-                autoHideDuration={2000}
-                action={[
-                  <IconButton
-                    arial-label="Close"
-                    color="inherit"
-                    onClick={snackbarclose}
-                  >
-                    x
-                  </IconButton>,
-                ]}
-              >
-                <MuiAlert onClose={snackbarclose} severity="warning">
-                  Please, select a option!
-                </MuiAlert>
-              </Snackbar>
-              <Snackbar
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                open={toast.snackbar2open}
-                onClose={snackbarclose}
-                autoHideDuration={2000}
-                action={[
-                  <IconButton
-                    arial-label="Close"
-                    color="inherit"
-                    onClick={snackbarclose}
-                  >
-                    x
-                  </IconButton>,
-                ]}
-              >
-                <MuiAlert onClose={snackbarclose} severity="success">
-                  <span className="font-weight-bold">
-                    Thankyou for voting!,
-                  </span>
-                  <p>your pole is Submitted.</p>
-                </MuiAlert>
-              </Snackbar>
+              <Notification
+                switcher={toast.snackbaropen}
+                close={snackbarclose}
+                message={toast.msg}
+                nottype={toast.not}
+              />
 
               <div className="mt-5 d-flex flex-column flex-md-row">
                 <div className="col-0 col-md-8">
                   <button
                     type="submit"
                     onClick={handleSubmit}
-                    className="focus-outline-none py-3 font-weight-bold focus-shadow w-50 bg-success text-white px-2 shadow-lg hover-shadow-lg rounded-lg"
+                    className="focus-outline-none py-3 font-weight-bold focus-shadow w-50 bg-success border-0 text-white px-2 shadow-lg hover-shadow-lg rounded-lg"
                   >
                     Submit your vote
                   </button>
