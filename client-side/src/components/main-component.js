@@ -8,7 +8,7 @@ import {
   faSpider,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, useHistory } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import Slide from '@material-ui/core/Slide';
@@ -38,12 +38,15 @@ function MainContent() {
     });
   };
   const showError = (value, error) => value.trim().length === 0 && error;
+  useEffect(() => {
+    if (localStorage.getItem('deletepoll') == 0) {
+      setToast({ snackbaropen: true, msg: 'Poll deleted!', not: 'success' });
+      localStorage.removeItem('deletepoll');
+    }
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    //console.log('Inputfields', inputFields);
-    //console.log('question', questions);
     const emptyQuestion = questions.question.trim().length > 0;
     const emptyOptions = inputFields.every((obj) => {
       return obj.options.length > 0;
@@ -67,13 +70,13 @@ function MainContent() {
       axios
         .post('http://localhost:5000/api', data)
         .then(function (response) {
-          console.log(response.data._id);
           handleClick(slideTransition);
           history.push(`/new/?id=${questions.id}`);
         })
         .catch(function (error) {
           console.log(error);
         });
+      localStorage.setItem('pollcreated', 0);
     }
   };
 
@@ -157,7 +160,7 @@ function MainContent() {
                   name="question"
                   multiline={true}
                   rows={3}
-                  className=" w-100 py-4 rounded-lg px-3 outline-none  border border-gray "
+                  className=" w-100 py-4 bg-light rounded-lg px-3 outline-none  border border-gray "
                   placeholder="What's you favorite TV Show?"
                   value={questions.question}
                   onChange={(event) => handleQuestion(questions.id, event)}
@@ -190,7 +193,7 @@ function MainContent() {
                           })}
                           id={inputField.id}
                           name="options"
-                          className=" py-3 rounded-lg px-3  inputfield focus-shadow  focus-outline-none  border "
+                          className=" py-3 rounded-lg px-3 bg-light inputfield focus-shadow  focus-outline-none  border "
                           placeholder={'Option' + (index + 1)}
                           value={inputField.options}
                           onChange={(event) =>

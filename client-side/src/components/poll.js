@@ -25,7 +25,6 @@ function Poll({ location }) {
     not: '',
   });
   const [verifier, setVerifier] = useState({ id: '', selected: '', show: 0 });
-  //console.log(response);
   const snackbarclose = (event) => {
     setToast({
       snackbaropen: false,
@@ -33,12 +32,8 @@ function Poll({ location }) {
   };
   useEffect(() => {
     setLocalkey(question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4));
-    //console.log(localkey);
     var cache = JSON.parse(localStorage.getItem(localkey));
-    console.log(cache);
-    if (cache === null) {
-      console.log('on track');
-    } else {
+    if (cache != null) {
       if (cache.id === pollid) {
         history.push('/poll-result/?id=' + pollid);
       }
@@ -49,14 +44,11 @@ function Poll({ location }) {
     var x = queryString.parse(location.search);
     const id = x.id;
     setPollid(id);
-    //console.log(id);
-
     axios
       .get(`http://localhost:5000/getpoll/${id}`)
       .then(function (response) {
         let medium = [];
         const data = response.data;
-        console.log(data);
         setQuestion(data.question);
         data.options.map((option) => {
           medium.push(option);
@@ -77,10 +69,6 @@ function Poll({ location }) {
       pollid: pollid,
     });
     setVerifier({ id: pollid, selected: option.options, show: 0 });
-
-    console.log('newresponse', response);
-    //settingVerifier(response);
-    console.log(verifier);
   }
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -92,9 +80,6 @@ function Poll({ location }) {
         not: 'success',
       });
       localStorage.setItem(localkey, [JSON.stringify(verifier)]);
-      console.log('submitting', response);
-      //settingVerifier(response);
-      console.log('submitting-verfier', verifier);
       axios
         .post('http://localhost:5000/submitresponse', response)
         .then(function (res) {
@@ -116,7 +101,14 @@ function Poll({ location }) {
     <div className="ui-outer">
       <div className="ui-container py-5 px-5">
         <div>
-          <h2 className=" mb-5 heading">{question}</h2>
+          <h2
+            className=" mb-5 w-100 heading"
+            style={{
+              wordWrap: 'break-word',
+            }}
+          >
+            {question}
+          </h2>
           <div className="flex flex-column w-75 mr-auto ml-auto">
             <form>
               {options.map((option) => (
@@ -135,7 +127,13 @@ function Poll({ location }) {
                       className="d-inline-block ml-3 mr-3"
                     />
                     <label htmlFor={option.id} className="w-100">
-                      <h4 className=" font-weight-bold  text-primary-dark d-inline-block">
+                      <h4
+                        className=" font-weight-bold  text-primary-dark d-inline-block "
+                        style={{
+                          wordWrap: 'break-word',
+                          width: '93%',
+                        }}
+                      >
                         {option.options}
                       </h4>
                     </label>

@@ -33,11 +33,11 @@ app.post('/api', (req, res) => {
 app.post('/editpoll', (req, res) => {
   const x = req.body.question.question;
   const y = req.body.options;
-  const k = req.body.key;
+  const k = req.body.pollid;
   console.log(x, y);
 
   savePoll
-    .findOneAndUpdate({ _id: k }, { question: x, options: y })
+    .findOneAndUpdate({ pollid: k }, { question: x, options: y })
     .then((response) => res.send(response))
     .catch((error) => res.send(error));
 });

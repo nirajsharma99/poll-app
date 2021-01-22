@@ -28,10 +28,7 @@ function PollResult({ location }) {
       snackbaropen: false,
     });
   };
-  console.log('total votes', totalvotes);
-
   var cache = JSON.parse(localStorage.getItem(localkey));
-  console.log(cache);
   useEffect(() => {
     setLocalkey(question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4));
     if (cache != null && cache.id === pollid && cache.show === 0) {
@@ -51,21 +48,17 @@ function PollResult({ location }) {
     var x = queryString.parse(location.search);
     const id = x.id;
     setPollid(id);
-    console.log(id);
     axios
       .get(`http://localhost:5000/getpoll/${id}`)
       .then(function (response) {
         let medium = [];
         const data = response.data;
-        console.log(data);
         setQuestion(data.question);
         data.options.map((option) => {
           medium.push(option);
           return medium;
         });
         setOptions(medium);
-        //console.log('options', options);
-        //console.log('medium', medium);
       })
       .catch(function (error) {
         console.log(error);
@@ -104,7 +97,12 @@ function PollResult({ location }) {
     </a>
   );
   const ShowSelection = () => (
-    <span className="bg-info text-decoration-none font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white ">
+    <span
+      className="bg-info w-100 text-decoration-none font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white "
+      style={{
+        wordWrap: 'break-word',
+      }}
+    >
       You voted for {cache.selected}
     </span>
   );
@@ -112,7 +110,14 @@ function PollResult({ location }) {
     <div className="ui-outer">
       <div className="ui-container py-5 position-relative">
         <div className="mb-5 mb-md-5 pb-md-0 my-4 ">
-          <h2 className=" mb-5 heading">{question}</h2>
+          <h2
+            className=" mb-5 heading w-100"
+            style={{
+              wordWrap: 'break-word',
+            }}
+          >
+            {question}
+          </h2>
           <div className="d-flex flex-column flex-md-row">
             <div className="d-flex w-100 col-12 col-md-8 flex-column">
               <div style={{ position: 'relative' }}>
@@ -122,15 +127,27 @@ function PollResult({ location }) {
                       className="py-0 bg-white px-3  rounded-lg shadow-lg position-relative"
                       key={x.id}
                     >
-                      <div className="d-flex justify-content-between">
-                        <div className="d-flex align-items-center">
-                          <h2 className=" font-weight-bold text-primary-dark">
+                      <div className="d-flex w-100 justify-content-between">
+                        <div
+                          className="d-flex align-items-center"
+                          style={{ width: '88%' }}
+                        >
+                          <h2
+                            className=" font-weight-bold text-primary-dark"
+                            style={{
+                              wordWrap: 'break-word',
+                              width: '80%',
+                            }}
+                          >
                             {x.options}
                           </h2>
                         </div>
                         <div className=" ">
                           <h2 className=" font-weight-bold text-primary-dark">
-                            {((x.count / totalvotes) * 100).toFixed(0)}%
+                            {totalvotes === 0
+                              ? 0
+                              : ((x.count / totalvotes) * 100).toFixed(0)}
+                            %
                           </h2>
                         </div>
                       </div>
@@ -138,7 +155,11 @@ function PollResult({ location }) {
                         <div
                           className="rounded-lg d-block mt-3"
                           style={{
-                            width: `${(x.count / totalvotes) * 100}%`,
+                            width: `${
+                              totalvotes === 0
+                                ? 0
+                                : (x.count / totalvotes) * 100
+                            }%`,
                             height: '0.5rem',
                             backgroundColor: `${randomColor()}`,
                           }}

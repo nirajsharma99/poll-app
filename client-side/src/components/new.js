@@ -40,7 +40,14 @@ function New({ location }) {
       .catch(function (error) {
         console.log(error);
       });
+  }, []);
+  useEffect(() => {
+    if (localStorage.getItem('pollcreated') == 0) {
+      setToast({ snackbaropen: true, msg: 'Poll created.', not: 'success' });
+      localStorage.removeItem('pollcreated');
+    }
   });
+
   const slideTransition = (props) => {
     return <Slide {...props} direction="down" />;
   };
@@ -67,16 +74,14 @@ function New({ location }) {
                   nottype={toast.not}
                 />
 
-                <CopyToClipboard
-                  text={'https://localhost:3000/poll/?id=' + pollId}
-                >
+                <CopyToClipboard text={'localhost:3000/poll/?id=' + pollId}>
                   <input
                     type="text"
                     name="lin"
                     id="pollURL"
                     className="w-100 cursor-pointer outline-none py-2 my-3 border px-4 bg-gray-200 text-secondary rounded"
                     readOnly={true}
-                    value={'https://localhost:3000/poll/?id=' + pollId}
+                    value={'localhost:3000/poll/?id=' + pollId}
                     onClick={handleClick(slideTransition)}
                   />
                 </CopyToClipboard>
@@ -100,18 +105,12 @@ function New({ location }) {
                     className="w-100 bg-transparent border-0 outline-none"
                     readOnly={true}
                     value={
-                      'https://localhost:3000/poll-admin/id=?' +
-                      pollId +
-                      '&key=' +
-                      key
+                      'localhost:3000/poll-admin/id=?' + pollId + '&key=' + key
                     }
                   />
                   <CopyToClipboard
                     text={
-                      'https://localhost:3000/poll-admin/?id=' +
-                      pollId +
-                      '&key=' +
-                      key
+                      'localhost:3000/poll-admin/?id=' + pollId + '&key=' + key
                     }
                   >
                     <div
@@ -126,12 +125,11 @@ function New({ location }) {
               </div>
             </div>
           </div>
-          <div className="bg-gray-200 d-flex px-5 py-4 w-100">
+          <div className=" d-flex px-5 py-4 w-100">
             <div className="ml-auto d-flex align-items-center">
               <a
-                className="w-100 font-weight-bold   border-right border-gray pr-4"
+                className="w-100 font-weight-bold   border-right border-dark pr-4"
                 target="_blank"
-                rel="noopener noreferrer"
                 href={'/poll/?id=' + pollId}
               >
                 Visit your poll
@@ -139,7 +137,6 @@ function New({ location }) {
               <a
                 className="w-100 pl-4 d-flex align-items-center font-weight-bold text-nowrap"
                 target="_blank"
-                rel="noopener noreferrer"
                 href={'/poll-admin/?id=' + pollId + '&key=' + key}
               >
                 Visit admin page

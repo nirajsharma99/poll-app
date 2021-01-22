@@ -91,17 +91,21 @@ function EditPoll({ location }) {
         })
       );
     } else {
-      const data = { question: questions, options: inputFields, key: key };
+      const data = {
+        question: questions,
+        options: inputFields,
+        pollid: pollid,
+      };
       axios
         .post('http://localhost:5000/editpoll', data)
         .then(function (response) {
           console.log(response.data._id);
-          handleClick(slideTransition);
-          history.push(`/poll-admin/?id=${pollid}&key=${pollid}`);
         })
         .catch(function (error) {
           console.log(error);
         });
+      localStorage.setItem('polledited', 0);
+      history.push(`/poll-admin/?id=${pollid}&key=${pollid}`);
     }
   };
 
