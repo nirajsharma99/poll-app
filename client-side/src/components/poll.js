@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import queryString from 'query-string';
 import { Link, useHistory } from 'react-router-dom';
-import PollResult from './poll-result';
 import Notification from './notification';
 
 function Poll({ location }) {
@@ -14,6 +13,7 @@ function Poll({ location }) {
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState([{ id: '', options: '', count: 0 }]);
   const [pollid, setPollid] = useState('');
+  const [localkey, setLocalkey] = useState('');
   const [response, setResponse] = useState({
     id: '',
     options: '',
@@ -32,7 +32,9 @@ function Poll({ location }) {
     });
   };
   useEffect(() => {
-    var cache = JSON.parse(localStorage.getItem('verifier'));
+    setLocalkey(question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4));
+    //console.log(localkey);
+    var cache = JSON.parse(localStorage.getItem(localkey));
     console.log(cache);
     if (cache === null) {
       console.log('on track');
@@ -89,7 +91,7 @@ function Poll({ location }) {
         msg: 'Thankyou for your vote!, vote submitted!',
         not: 'success',
       });
-      localStorage.setItem('verifier', [JSON.stringify(verifier)]);
+      localStorage.setItem(localkey, [JSON.stringify(verifier)]);
       console.log('submitting', response);
       //settingVerifier(response);
       console.log('submitting-verfier', verifier);
@@ -148,7 +150,7 @@ function Poll({ location }) {
               />
 
               <div className="mt-5 d-flex flex-column flex-md-row">
-                <div className="col-0 col-md-8">
+                <div className="col-0 col-md-8 d-flex px-0 justify-content-center justify-content-md-start">
                   <button
                     type="submit"
                     onClick={handleSubmit}
@@ -157,7 +159,7 @@ function Poll({ location }) {
                     Submit your vote
                   </button>
                 </div>
-                <div className="col-0 col-md-4 ">
+                <div className="col-0 col-md-4 mt-4 px-0">
                   <Link to={'/poll-result/?id=' + pollid}>
                     <h5 className=" display-8 float-right text-secondary font-weight-normal">
                       View Results <FontAwesomeIcon icon={faChevronRight} />

@@ -1,10 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faLinkedin,
-  faTelegramPlane,
-  faTwitter,
-  faWhatsapp,
-} from '@fortawesome/free-brands-svg-icons';
+
 import { faTrashAlt, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
 import { faQrcode } from '@fortawesome/free-solid-svg-icons';
 import QRCode from 'qrcode.react';
@@ -12,6 +7,9 @@ import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import queryString from 'query-string';
+import Notification from './notification';
+import randomColor from 'randomcolor';
+import SocialShare from './social-share';
 
 function PollAdmin({ location }) {
   const [question, setQuestion] = useState('');
@@ -20,14 +18,40 @@ function PollAdmin({ location }) {
   const [pollid, setPollid] = useState('');
   const [showQR, setShowQR] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [localkey, setLocalkey] = useState('');
+
   let totalvotes = 0;
   options.map((x) => {
-    totalvotes += x.count;
+    return (totalvotes += x.count);
   });
   const history = useHistory();
+  const [toast, setToast] = useState({
+    snackbaropen: false,
+    msg: '',
+    not: '',
+  });
+  const snackbarclose = (event) => {
+    setToast({
+      snackbaropen: false,
+    });
+  };
   //console.log('total votes', totalvotes);
-  var cache = JSON.parse(localStorage.getItem('verifier'));
+  var cache = JSON.parse(localStorage.getItem(localkey));
   console.log(cache);
+  useEffect(() => {
+    setLocalkey(question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4));
+    if (cache != null && cache.id === pollid && cache.show === 0) {
+      setToast({
+        snackbaropen: true,
+        msg: 'Thankyou for voting!',
+        not: 'success',
+      });
+      localStorage.setItem(
+        localkey,
+        JSON.stringify({ id: cache.id, selected: cache.selected, show: 1 })
+      );
+    }
+  });
   useEffect(() => {
     var x = queryString.parse(location.search);
     const id = x.id;
@@ -155,6 +179,7 @@ function PollAdmin({ location }) {
                 aria-label="Edit Poll?"
                 href={'/edit-poll/?id=' + pollid + '&key=' + key}
                 className="text-primary-dark p-2 outline-none rounded hover-shadow text-warning border-0 bg-transparent"
+                style={{ fontSize: '1.5rem' }}
               >
                 <FontAwesomeIcon icon={faPencilAlt} />
               </a>
@@ -163,8 +188,8 @@ function PollAdmin({ location }) {
             <button
               aria-label={'Delete Poll?'}
               role="alert"
-              data-balloon-pos="up"
               className="text-primary-dark p-2 outline-none rounded hover-shadow text-danger border-0 bg-transparent"
+              style={{ fontSize: '1.5rem' }}
               onClick={() => setShowDelete(true)}
             >
               <FontAwesomeIcon icon={faTrashAlt} />
@@ -196,10 +221,11 @@ function PollAdmin({ location }) {
                       </div>
                       <div className="w-100 rounded-lg ">
                         <div
-                          className="rounded-lg d-block bg-success mt-3"
+                          className="rounded-lg d-block mt-3"
                           style={{
                             width: `${(x.count / totalvotes) * 100}%`,
                             height: '0.5rem',
+                            backgroundColor: `${randomColor()}`,
                           }}
                         ></div>
                       </div>
@@ -210,6 +236,12 @@ function PollAdmin({ location }) {
               </div>
             </div>
             <div className="d-flex flex-column w-100 col-12 col-md-4 mb-0 rounded-lg ">
+              <Notification
+                switcher={toast.snackbaropen}
+                close={snackbarclose}
+                message={toast.msg}
+                nottype={toast.not}
+              />
               {cache != null ? (
                 cache.id === pollid ? (
                   <ShowSelection />
@@ -229,7 +261,7 @@ function PollAdmin({ location }) {
                       {totalvotes}
                     </h3>
                   </div>
-                  <div className="d-flex flex-row flex-md-column">
+                  <div className="d-flex flex-row flex-md-column justify-content-center">
                     <p className="font-weight-bold d-none d-md-inline-block mt-2 mb-4 text-primary-secondary text-left">
                       Share
                     </p>
@@ -244,51 +276,10 @@ function PollAdmin({ location }) {
                         Share via QRcode
                       </snap>
                     </button>
-                    <a
-                      className="bg-primary text-decoration-none font-weight-bold mb-4 mr-2 py-2 rounded-lg text-center  text-white "
-                      href="/"
-                    >
-                      <FontAwesomeIcon className="ml-3 mr-3" icon={faTwitter} />
-                      <snap className="d-none d-md-inline-block">
-                        Share on Twitter
-                      </snap>
-                    </a>
-                    <a
-                      className="bg-success text-decoration-none font-weight-bold mb-4 mr-2 py-2 rounded-lg text-center  text-white "
-                      href="/"
-                    >
-                      <FontAwesomeIcon
-                        className="ml-3 mr-3"
-                        icon={faWhatsapp}
-                      />
-                      <snap className="d-none d-md-inline-block">
-                        Share on Whatsapp
-                      </snap>
-                    </a>
-                    <a
-                      className="bg-info text-decoration-none font-weight-bold mb-4 mr-2 py-2 rounded-lg text-center  text-white "
-                      href="/"
-                    >
-                      <FontAwesomeIcon
-                        className="ml-3 mr-3"
-                        icon={faTelegramPlane}
-                      />
-                      <snap className="d-none d-md-inline-block">
-                        Share on Telegram
-                      </snap>
-                    </a>
-                    <a
-                      className="bg-primary text-decoration-none font-weight-bold mb-4 mr-2 py-2 rounded-lg text-center  text-white "
-                      href="/"
-                    >
-                      <FontAwesomeIcon
-                        className="ml-3 mr-3"
-                        icon={faLinkedin}
-                      />
-                      <snap className="d-none d-md-inline-block">
-                        Share on LinkedIn
-                      </snap>
-                    </a>
+                    <SocialShare
+                      url={'http://localhost:3000/poll/?id=' + pollid}
+                      question={question}
+                    />
                   </div>
                 </div>
               </div>

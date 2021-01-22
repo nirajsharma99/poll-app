@@ -142,7 +142,7 @@ function MainContent() {
               </Link>
             </div>
             <div className="mt-4">
-              <div className="flex flex-column question ">
+              <div className="d-flex flex-column ">
                 <label className="mb-3 w-100 font-weight-bold content-text">
                   Poll Question
                 </label>
@@ -172,12 +172,12 @@ function MainContent() {
 
               {inputFields.map((inputField, index) => (
                 <div className="options mt-2 flex-column " key={inputField.id}>
-                  <div className="flex align-items-center mb-3">
-                    <div className="flex flex-column">
+                  <div className=" mb-3">
+                    <div className="d-flex flex-column">
                       <label className="mb-3 w-100 content-text font-weight-bold">
                         Option {index + 1}
                       </label>
-                      <div className="flex align-items-center justify-content-between">
+                      <div className="">
                         <TextField
                           {...(showError(
                             inputField.options,
@@ -190,7 +190,7 @@ function MainContent() {
                           })}
                           id={inputField.id}
                           name="options"
-                          className=" py-3 rounded-lg px-3  inputfield focus-shadow transition-all duration-200 text-gray-700 focus-outline-none  border border-gray-300"
+                          className=" py-3 rounded-lg px-3  inputfield focus-shadow  focus-outline-none  border "
                           placeholder={'Option' + (index + 1)}
                           value={inputField.options}
                           onChange={(event) =>
@@ -215,7 +215,7 @@ function MainContent() {
               <button
                 type="button"
                 onClick={handleAddfields}
-                className="px-5 py-3  bg-dark rounded-lg font-weight-bold flex align-items-center border-0 justify-content-between text-white "
+                className="px-5 py-3  bg-dark rounded-lg font-weight-bold  border-0 text-white "
               >
                 <span className="mr-3">
                   Add another option
@@ -223,7 +223,7 @@ function MainContent() {
                 </span>
               </button>
             </div>
-            <div className="flex justify-content-center mt-5 pt-3 ">
+            <div className=" mt-5 pt-3 ">
               <button
                 type="submit"
                 /*onClick={handleSubmit}*/
@@ -240,7 +240,9 @@ function MainContent() {
         className="text-center font-weight-bold"
         style={{ fontSize: '1.3rem', color: 'skyblue' }}
       >
-        Built By{' '}
+        Built By Niraj
+      </p>
+      <p className="text-center">
         <FontAwesomeIcon className="display-4 text-dark" icon={faSpider} />
       </p>
     </div>
